@@ -16,11 +16,7 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
-import * as nestAccessControl from "nest-access-control";
-import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { AdminService } from "../admin.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AdminCreateInput } from "./AdminCreateInput";
 import { AdminWhereInput } from "./AdminWhereInput";
 import { AdminWhereUniqueInput } from "./AdminWhereUniqueInput";
@@ -28,24 +24,10 @@ import { AdminFindManyArgs } from "./AdminFindManyArgs";
 import { AdminUpdateInput } from "./AdminUpdateInput";
 import { Admin } from "./Admin";
 
-@swagger.ApiBearerAuth()
-@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class AdminControllerBase {
-  constructor(
-    protected readonly service: AdminService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
-  ) {}
-  @common.UseInterceptors(AclValidateRequestInterceptor)
+  constructor(protected readonly service: AdminService) {}
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Admin })
-  @nestAccessControl.UseRoles({
-    resource: "Admin",
-    action: "create",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async create(@common.Body() data: AdminCreateInput): Promise<Admin> {
     return await this.service.create({
       data: data,
@@ -63,18 +45,9 @@ export class AdminControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Admin] })
   @ApiNestedQuery(AdminFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "Admin",
-    action: "read",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async findMany(@common.Req() request: Request): Promise<Admin[]> {
     const args = plainToClass(AdminFindManyArgs, request.query);
     return this.service.findMany({
@@ -93,18 +66,9 @@ export class AdminControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Admin })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Admin",
-    action: "read",
-    possession: "own",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async findOne(
     @common.Param() params: AdminWhereUniqueInput
   ): Promise<Admin | null> {
@@ -130,18 +94,9 @@ export class AdminControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Admin })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Admin",
-    action: "update",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async update(
     @common.Param() params: AdminWhereUniqueInput,
     @common.Body() data: AdminUpdateInput
@@ -175,14 +130,6 @@ export class AdminControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Admin })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Admin",
-    action: "delete",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async delete(
     @common.Param() params: AdminWhereUniqueInput
   ): Promise<Admin | null> {
