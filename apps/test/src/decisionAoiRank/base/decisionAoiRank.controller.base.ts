@@ -16,11 +16,7 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
-import * as nestAccessControl from "nest-access-control";
-import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { DecisionAoiRankService } from "../decisionAoiRank.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { DecisionAoiRankCreateInput } from "./DecisionAoiRankCreateInput";
 import { DecisionAoiRankWhereInput } from "./DecisionAoiRankWhereInput";
 import { DecisionAoiRankWhereUniqueInput } from "./DecisionAoiRankWhereUniqueInput";
@@ -28,24 +24,10 @@ import { DecisionAoiRankFindManyArgs } from "./DecisionAoiRankFindManyArgs";
 import { DecisionAoiRankUpdateInput } from "./DecisionAoiRankUpdateInput";
 import { DecisionAoiRank } from "./DecisionAoiRank";
 
-@swagger.ApiBearerAuth()
-@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class DecisionAoiRankControllerBase {
-  constructor(
-    protected readonly service: DecisionAoiRankService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
-  ) {}
-  @common.UseInterceptors(AclValidateRequestInterceptor)
+  constructor(protected readonly service: DecisionAoiRankService) {}
   @common.Post()
   @swagger.ApiCreatedResponse({ type: DecisionAoiRank })
-  @nestAccessControl.UseRoles({
-    resource: "DecisionAoiRank",
-    action: "create",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async create(
     @common.Body() data: DecisionAoiRankCreateInput
   ): Promise<DecisionAoiRank> {
@@ -64,18 +46,9 @@ export class DecisionAoiRankControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [DecisionAoiRank] })
   @ApiNestedQuery(DecisionAoiRankFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "DecisionAoiRank",
-    action: "read",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async findMany(@common.Req() request: Request): Promise<DecisionAoiRank[]> {
     const args = plainToClass(DecisionAoiRankFindManyArgs, request.query);
     return this.service.findMany({
@@ -93,18 +66,9 @@ export class DecisionAoiRankControllerBase {
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: DecisionAoiRank })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "DecisionAoiRank",
-    action: "read",
-    possession: "own",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async findOne(
     @common.Param() params: DecisionAoiRankWhereUniqueInput
   ): Promise<DecisionAoiRank | null> {
@@ -129,18 +93,9 @@ export class DecisionAoiRankControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: DecisionAoiRank })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "DecisionAoiRank",
-    action: "update",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async update(
     @common.Param() params: DecisionAoiRankWhereUniqueInput,
     @common.Body() data: DecisionAoiRankUpdateInput
@@ -173,14 +128,6 @@ export class DecisionAoiRankControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: DecisionAoiRank })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "DecisionAoiRank",
-    action: "delete",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async delete(
     @common.Param() params: DecisionAoiRankWhereUniqueInput
   ): Promise<DecisionAoiRank | null> {

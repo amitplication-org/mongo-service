@@ -10,7 +10,6 @@ import { ProductModule } from "./product/product.module";
 import { SomeThingModule } from "./someThing/someThing.module";
 import { DecisionAoiRankModule } from "./decisionAoiRank/decisionAoiRank.module";
 import { EmployeeModule } from "./employee/employee.module";
-import { UserModule } from "./user/user.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
@@ -19,14 +18,9 @@ import { ServeStaticModule } from "@nestjs/serve-static";
 import { ServeStaticOptionsService } from "./serveStaticOptions.service";
 import { GraphQLModule } from "@nestjs/graphql";
 
-import { ACLModule } from "./auth/acl.module";
-import { AuthModule } from "./auth/auth.module";
-
 @Module({
   controllers: [],
   imports: [
-    ACLModule,
-    AuthModule,
     ClassModelModule,
     AdminModule,
     OrderModule,
@@ -36,7 +30,6 @@ import { AuthModule } from "./auth/auth.module";
     SomeThingModule,
     DecisionAoiRankModule,
     EmployeeModule,
-    UserModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,

@@ -110,17 +110,6 @@ model Employee {
   @@unique([firstName, lastName, birthdate])
 }
 
-model User {
-  createdAt DateTime @default(now())
-  firstName String?
-  id        String   @id @default(cuid())
-  lastName  String?
-  password  String
-  roles     Json
-  updatedAt DateTime @updatedAt
-  username  String   @unique
-}
-
 enum EnumOrderStatus {
   PENDING
   COMPLETED
