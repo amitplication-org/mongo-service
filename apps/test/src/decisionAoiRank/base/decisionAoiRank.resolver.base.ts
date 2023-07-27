@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import * as apollo from "apollo-server-express";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { CreateDecisionAoiRankArgs } from "./CreateDecisionAoiRankArgs";
 import { UpdateDecisionAoiRankArgs } from "./UpdateDecisionAoiRankArgs";
 import { DeleteDecisionAoiRankArgs } from "./DeleteDecisionAoiRankArgs";
@@ -21,10 +27,20 @@ import { DecisionAoiRankFindManyArgs } from "./DecisionAoiRankFindManyArgs";
 import { DecisionAoiRankFindUniqueArgs } from "./DecisionAoiRankFindUniqueArgs";
 import { DecisionAoiRank } from "./DecisionAoiRank";
 import { DecisionAoiRankService } from "../decisionAoiRank.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => DecisionAoiRank)
 export class DecisionAoiRankResolverBase {
-  constructor(protected readonly service: DecisionAoiRankService) {}
+  constructor(
+    protected readonly service: DecisionAoiRankService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "DecisionAoiRank",
+    action: "read",
+    possession: "any",
+  })
   async _decisionAoiRanksMeta(
     @graphql.Args() args: DecisionAoiRankCountArgs
   ): Promise<MetaQueryPayload> {
@@ -34,14 +50,26 @@ export class DecisionAoiRankResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [DecisionAoiRank])
+  @nestAccessControl.UseRoles({
+    resource: "DecisionAoiRank",
+    action: "read",
+    possession: "any",
+  })
   async decisionAoiRanks(
     @graphql.Args() args: DecisionAoiRankFindManyArgs
   ): Promise<DecisionAoiRank[]> {
     return this.service.findMany(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => DecisionAoiRank, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "DecisionAoiRank",
+    action: "read",
+    possession: "own",
+  })
   async decisionAoiRank(
     @graphql.Args() args: DecisionAoiRankFindUniqueArgs
   ): Promise<DecisionAoiRank | null> {
@@ -52,7 +80,13 @@ export class DecisionAoiRankResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => DecisionAoiRank)
+  @nestAccessControl.UseRoles({
+    resource: "DecisionAoiRank",
+    action: "create",
+    possession: "any",
+  })
   async createDecisionAoiRank(
     @graphql.Args() args: CreateDecisionAoiRankArgs
   ): Promise<DecisionAoiRank> {
@@ -62,7 +96,13 @@ export class DecisionAoiRankResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => DecisionAoiRank)
+  @nestAccessControl.UseRoles({
+    resource: "DecisionAoiRank",
+    action: "update",
+    possession: "any",
+  })
   async updateDecisionAoiRank(
     @graphql.Args() args: UpdateDecisionAoiRankArgs
   ): Promise<DecisionAoiRank | null> {
@@ -82,6 +122,11 @@ export class DecisionAoiRankResolverBase {
   }
 
   @graphql.Mutation(() => DecisionAoiRank)
+  @nestAccessControl.UseRoles({
+    resource: "DecisionAoiRank",
+    action: "delete",
+    possession: "any",
+  })
   async deleteDecisionAoiRank(
     @graphql.Args() args: DeleteDecisionAoiRankArgs
   ): Promise<DecisionAoiRank | null> {
